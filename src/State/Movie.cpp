@@ -23,7 +23,7 @@
 // C++ standard includes
 
 // Falltergeist includes
-#include "../Audio/Mixer.h"
+#include "../Audio/IMixer.h"
 #include "../CrossPlatform.h"
 #include "../Event/Keyboard.h"
 #include "../Event/Mouse.h"
@@ -182,7 +182,7 @@ namespace Falltergeist
 
         void Movie::onVideoFinished()
         {
-            Game::getInstance()->mixer()->stopMusic();
+            Game::getInstance()->mixer()->stop();
             Game::getInstance()->mouse()->popState();
             Game::getInstance()->popState();
         }

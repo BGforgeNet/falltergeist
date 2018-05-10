@@ -23,7 +23,7 @@
 // C++ standard includes
 
 // Falltergeist includes
-#include "../../Audio/Mixer.h"
+#include "../../Audio/IMixer.h"
 #include "../../Game/Game.h"
 #include "../../Logger.h"
 #include "../../VM/Script.h"
@@ -44,7 +44,7 @@ namespace Falltergeist
             {
                 Logger::debug("SCRIPT") << "[80A3] [=] void play_sfx(string* p1)" << std::endl;
                 auto name = _script->dataStack()->popString();
-                Game::Game::getInstance()->mixer()->playACMSound("sound/sfx/" + name + ".acm");
+                Game::Game::getInstance()->mixer()->playFile(Audio::IMixer::Category::SFX, "sound/sfx/" + name + ".acm");
             }
         }
     }

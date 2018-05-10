@@ -43,7 +43,7 @@
 #include "../UI/Animation.h"
 #include "../UI/AnimationFrame.h"
 #include "../UI/AnimationQueue.h"
-#include "../Audio/Mixer.h"
+#include "../Audio/IMixer.h"
 
 // Third party includes
 
@@ -54,9 +54,9 @@ namespace Falltergeist
 
         CritterInteract::CritterInteract() : State()
         {
-            _dialog=new CritterDialog();
-            _review=new CritterDialogReview();
-            _barter=new CritterBarter();
+            _dialog = new CritterDialog();
+            _review = new CritterDialogReview();
+            _barter = new CritterBarter();
             // pre-init review, so we can push questions/answers to it.
             _review->init();
         }
@@ -73,30 +73,20 @@ namespace Falltergeist
         void CritterInteract::onStateActivate(Event::State* event)
         {
             Game::getInstance()->mouse()->pushState(Input::Mouse::Cursor::BIG_ARROW);
-            if (_headID >= 0)
-            {
-                // stop music completely
-                // TODO: because Dialog state is activated *before* Interact, this stops speech too =/
-                //Game::getInstance()->mixer()->stopMusic();
-            }
-            else
-            {
-                // lower music volume
-                Game::getInstance()->mixer()->setMusicVolume(Game::getInstance()->mixer()->musicVolume()/2.0);
+            if (_headID >= 0) {
+                Game::getInstance()->mixer()->pause(Audio::IMixer::Category::MUSIC);
+            } else {
+                Game::getInstance()->mixer()->lowerHalfVolume(Audio::IMixer::Category::MUSIC);
             }
         }
 
         void CritterInteract::onStateDeactivate(Event::State* event)
         {
             Game::getInstance()->mouse()->popState();
-            if (_headID >= 0)
-            {
-                Game::getInstance()->mixer()->playACMMusic(Game::getInstance()->mixer()->lastMusic(), true);
-            }
-            else
-            {
-                // restore music volume
-                Game::getInstance()->mixer()->setMusicVolume(Game::getInstance()->mixer()->musicVolume()*2.0);
+            if (_headID >= 0) {
+                Game::getInstance()->mixer()->resume(Audio::IMixer::Category::MUSIC);
+            } else {
+                Game::getInstance()->mixer()->increaseHalfVolume(Audio::IMixer::Category::MUSIC);
             }
         }
 
@@ -243,13 +233,14 @@ namespace Falltergeist
         void CritterInteract::playSpeech(const std::string &speech)
         {
             _fidgetTimer.stop();
-            Game::getInstance()->mixer()->playACMSpeech(_headName+"/"+speech+".acm");
+            _lipsAcmFilename = _headName + "/" + speech + ".acm";
+            Game::getInstance()->mixer()->playFile(Audio::IMixer::Category::SPEECH, _lipsAcmFilename);
             // start timer
             _startTime = SDL_GetTicks();
             _nextIndex = 0;
             _phase = Phase::TALK;
 
-            _lips = ResourceManager::getInstance()->lipFileType("sound/speech/"+_headName+"/"+speech+".lip");
+            _lips = ResourceManager::getInstance()->lipFileType("sound/speech/" + _headName + "/" + speech + ".lip");
             auto head = dynamic_cast<UI::AnimationQueue*>(getUI("head"));
             head->stop();
             head->clear();
@@ -329,11 +320,10 @@ namespace Falltergeist
 
         void CritterInteract::switchSubState(CritterInteract::SubState state)
         {
-            Game::getInstance()->mixer()->stopMusic();
+            Game::getInstance()->mixer()->stop();
             _phase = Phase::FIDGET;
             _fidgetTimer.start(0);
-            if (_state!=SubState::NONE)
-            {
+            if (_state != SubState::NONE) {
                 Game::getInstance()->popState(false);
             }
             _state = state;
@@ -356,7 +346,7 @@ namespace Falltergeist
 
         void CritterInteract::transition(Reaction reaction)
         {
-            Game::getInstance()->mixer()->stopMusic();
+            Game::getInstance()->mixer()->pause(Audio::IMixer::Category::MUSIC);
             auto newmood = _mood;
 
             if (headID()!= -1)

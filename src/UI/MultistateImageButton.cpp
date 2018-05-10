@@ -23,7 +23,7 @@
 // C++ standard includes
 
 // Falltergeist includes
-#include "../Audio/Mixer.h"
+#include "../Audio/IMixer.h"
 #include "../Event/Event.h"
 #include "../Event/Mouse.h"
 #include "../Exception.h"
@@ -143,11 +143,11 @@ void MultistateImageButton::_onMouseUp(Event::Mouse* event)
 
     if (!sender->_downSound.empty())
     {
-        Game::getInstance()->mixer()->playACMSound(sender->_downSound);
+        Game::getInstance()->mixer()->playFile(Audio::IMixer::Category::SFX, sender->_downSound);
     }
     if (!sender->_upSound.empty())
     {
-        Game::getInstance()->mixer()->playACMSound(sender->_upSound);
+        Game::getInstance()->mixer()->playFile(Audio::IMixer::Category::SFX, sender->_upSound);
     }
 }
 

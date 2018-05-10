@@ -26,46 +26,37 @@
 #include <unordered_map>
 
 // Falltergeist includes
+#include "../Audio/IMixer.h"
 
 // Third party includes
 #include <SDL_mixer.h>
 
 namespace Falltergeist
 {
-    namespace UI
-    {
+    namespace UI {
         class MvePlayer;
     }
-    namespace Audio
-    {
-        class Mixer
-        {
+    namespace Audio {
+        class Mixer : public virtual IMixer {
             public:
                 Mixer();
-                ~Mixer();
-                void stopMusic();
-                void stopSounds();
-                void playACMMusic(const std::string& filename, bool loop = false);
+                virtual ~Mixer();
+                void playFile(Category category, std::string path, bool repeat = false) override;
+                void stop() override;
+                void setVolume(Category category, double volume) override;
+                double volume(Category category) override;
+                void lowerHalfVolume(Category category) override;
+                void increaseHalfVolume(Category category) override;
+                void pause(Category category) override;
+                void resume(Category category) override;
+
                 void playACMSpeech(const std::string& filename);
                 void playACMSound(const std::string& filename);
-                void playMovieMusic(UI::MvePlayer* mve);
-                void pauseMusic();
-                void resumeMusic();
-                std::string& lastMusic();
-                /**
-                 * @return current music volume
-                 */
-                double musicVolume();
-                /**
-                 * @brief Sets volume of music
-                 * @param volume from 0.0 to 1.0
-                 */
-                void setMusicVolume(double volume);
+                void playMovieMusic(UI::MvePlayer* mve) override;
 
-            protected:
+        private:
+                void playACMMusic(const std::string& filename, bool loop = false);
                 void _init();
-
-            private:
                 void _musicCallback(void* udata, uint8_t* stream, uint32_t len);
                 void _speechCallback(void* udata, uint8_t* stream, uint32_t len);
                 void _movieCallback(void* udata, uint8_t* stream, uint32_t len);

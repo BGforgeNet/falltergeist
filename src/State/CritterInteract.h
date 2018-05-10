@@ -122,6 +122,7 @@ namespace Falltergeist
 
 
         protected:
+                std::string _lipsAcmFilename;
                 Point _oldCameraCenter;
                 int _backgroundID = -1;
                 int _headID = -1;

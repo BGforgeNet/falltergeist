@@ -55,6 +55,10 @@ namespace Falltergeist
             Mix_CloseAudio();
         }
 
+        void Mixer::playFile(Category category, std::string path, bool repeat) {
+            playACMSound(path);
+        }
+
         void Mixer::_init()
         {
             std::string message = "[AUDIO] - SDL_Init - ";
@@ -74,11 +78,6 @@ namespace Falltergeist
             Logger::info() << message + "[OK]" << std::endl;
             int frequency, channels;
             Mix_QuerySpec(&frequency, &_format, &channels);
-        }
-
-        void Mixer::stopMusic()
-        {
-            Mix_HookMusic(NULL, NULL);
         }
 
         std::function<void(void*, uint8_t*, uint32_t)> musicCallback;
@@ -215,40 +214,51 @@ namespace Falltergeist
             Mix_PlayChannel(-1, chunk, 0);
         }
 
-        void Mixer::stopSounds()
-        {
-            Mix_HaltChannel(-1);
+        void Mixer::setVolume(IMixer::Category category, double volume) {
+            // TODO implement volume levels for all categories
+            if (volume < 0.0) {
+                volume = 0.0;
+            } else if (volume > 1.0) {
+                volume = 1.0;
+            }
+
+            if (category == Category::MUSIC) {
+                _musicVolume = volume;
+            }
         }
 
-        void Mixer::pauseMusic()
-        {
-            _paused = true;
+        double Mixer::volume(IMixer::Category category) {
+            // TODO implement volume levels for all categories
+            if (category == Category::MUSIC) {
+                return _musicVolume;
+            }
+            return 0;
         }
 
-        void Mixer::resumeMusic()
-        {
-            _paused = false;
+        void Mixer::lowerHalfVolume(IMixer::Category category) {
+            return setVolume(category, volume(category) / 2.0);
         }
 
-        double Mixer::musicVolume()
-        {
-            return _musicVolume;
+        void Mixer::increaseHalfVolume(IMixer::Category category) {
+            return setVolume(category, volume(category) * 2.0);
         }
 
-        void Mixer::setMusicVolume(double volume)
-        {
-            if (volume < 0.0) volume = 0.0;
-            else if (volume > 1.0) volume = 1.0;
-            _musicVolume = volume;
+        void Mixer::pause(IMixer::Category category) {
+            // TODO implement for all categories
+            if (category == Category::MUSIC) {
+                _paused = true;
+            }
         }
 
-        std::string &Mixer::lastMusic()
-        {
-            return _lastMusic;
+        void Mixer::resume(IMixer::Category category) {
+            // TODO implement for all categories
+            if (category == Category::MUSIC) {
+                _paused = false;
+            }
+        }
+
+        void Mixer::stop() {
+            Mix_HookMusic(NULL, NULL);
         }
     }
-
-
-
-
 }
