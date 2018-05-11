@@ -23,6 +23,7 @@
 // C++ standard includes
 #include <cstdint>
 #include <string>
+#include <map>
 #include <unordered_map>
 
 // Falltergeist includes
@@ -37,10 +38,10 @@ namespace Falltergeist
         class MvePlayer;
     }
     namespace Audio {
-        class Mixer : public virtual IMixer {
+        class Sdl2Mixer : public virtual IMixer {
             public:
-                Mixer();
-                virtual ~Mixer();
+                Sdl2Mixer();
+                virtual ~Sdl2Mixer();
                 void playFile(Category category, std::string path, bool repeat = false) override;
                 void stop() override;
                 void setVolume(Category category, double volume) override;
@@ -61,12 +62,13 @@ namespace Falltergeist
                 void _speechCallback(void* udata, uint8_t* stream, uint32_t len);
                 void _movieCallback(void* udata, uint8_t* stream, uint32_t len);
                 std::unordered_map<std::string, Mix_Chunk*> _sfx;
-                bool _paused = false;
-                bool _loop = false;
 
-                double _musicVolume = 1.0;
+                std::map<IMixer::Category, double> _volumes;
+                bool _musicLoop = false;
+
                 SDL_AudioFormat _format;
                 std::string _lastMusic = "";
+                int channelNumber(Category category);
         };
     }
 }

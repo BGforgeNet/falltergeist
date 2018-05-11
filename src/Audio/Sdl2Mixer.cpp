@@ -18,7 +18,7 @@
  */
 
 // Related headers
-#include "../Audio/Mixer.h"
+#include "Sdl2Mixer.h"
 
 // C++ standard includes
 #include <string>
@@ -40,12 +40,12 @@ namespace Falltergeist
 {
     namespace Audio
     {
-        Mixer::Mixer()
+        Sdl2Mixer::Sdl2Mixer()
         {
             _init();
         }
 
-        Mixer::~Mixer()
+        Sdl2Mixer::~Sdl2Mixer()
         {
             for (auto& x: _sfx)
             {
@@ -55,11 +55,11 @@ namespace Falltergeist
             Mix_CloseAudio();
         }
 
-        void Mixer::playFile(Category category, std::string path, bool repeat) {
+        void Sdl2Mixer::playFile(Category category, std::string path, bool repeat) {
             playACMSound(path);
         }
 
-        void Mixer::_init()
+        void Sdl2Mixer::_init()
         {
             std::string message = "[AUDIO] - SDL_Init - ";
             if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
@@ -78,6 +78,9 @@ namespace Falltergeist
             Logger::info() << message + "[OK]" << std::endl;
             int frequency, channels;
             Mix_QuerySpec(&frequency, &_format, &channels);
+
+            // We need three channels. For MUSIC, SFX, SPEECH
+            Mix_AllocateChannels(3);
         }
 
         std::function<void(void*, uint8_t*, uint32_t)> musicCallback;
@@ -87,19 +90,18 @@ namespace Falltergeist
             musicCallback(udata, stream, len);
         }
 
-        void Mixer::_musicCallback(void *udata, uint8_t *stream, uint32_t len)
+        void Sdl2Mixer::_musicCallback(void *udata, uint8_t *stream, uint32_t len)
         {
-            if (_paused) return;
+            if (_musicPaused) {
+                return;
+            }
 
             auto pacm = (Format::Acm::File*)(udata);
             if (pacm->samplesLeft() <= 0)
             {
-                if (_loop)
-                {
+                if (_musicLoop) {
                     pacm->rewind();
-                }
-                else
-                {
+                } else {
                     Mix_HookMusic(NULL,NULL);
                     return;
                 }
@@ -112,19 +114,19 @@ namespace Falltergeist
             SDL_MixAudioFormat(stream, (uint8_t*)tmp.data(), _format, len, static_cast<int>(SDL_MIX_MAXVOLUME * _musicVolume));
         }
 
-        void Mixer::playACMMusic(const std::string& filename, bool loop)
+        void Sdl2Mixer::playACMMusic(const std::string& filename, bool loop)
         {
             Mix_HookMusic(NULL, NULL);
             auto acm = ResourceManager::getInstance()->acmFileType(Game::getInstance()->settings()->musicPath()+filename);
             if (!acm) return;
             _lastMusic = filename;
             _loop = loop;
-            musicCallback = std::bind(&Mixer::_musicCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+            musicCallback = std::bind(&Sdl2Mixer::_musicCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
             acm->rewind();
             Mix_HookMusic(myMusicPlayer, (void *)acm);
         }
 
-        void Mixer::_speechCallback(void *udata, uint8_t *stream, uint32_t len)
+        void Sdl2Mixer::_speechCallback(void *udata, uint8_t *stream, uint32_t len)
         {
             if (_paused) return;
 
@@ -145,17 +147,17 @@ namespace Falltergeist
             }
         }
 
-        void Mixer::playACMSpeech(const std::string& filename)
+        void Sdl2Mixer::playACMSpeech(const std::string& filename)
         {
             Mix_HookMusic(NULL, NULL);
             auto acm = ResourceManager::getInstance()->acmFileType("sound/speech/"+filename);
             if (!acm) return;
-            musicCallback = std::bind(&Mixer::_speechCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+            musicCallback = std::bind(&Sdl2Mixer::_speechCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
             acm->rewind();
             Mix_HookMusic(myMusicPlayer, (void *)acm);
         }
 
-        void Mixer::_movieCallback(void *udata, uint8_t *stream, uint32_t len)
+        void Sdl2Mixer::_movieCallback(void *udata, uint8_t *stream, uint32_t len)
         {
             auto pmve = (UI::MvePlayer*)(udata);
             if (pmve->samplesLeft() <= 0)
@@ -168,17 +170,17 @@ namespace Falltergeist
             pmve->getAudio(stream, len);
         }
 
-        void Mixer::playMovieMusic(UI::MvePlayer* mve)
+        void Sdl2Mixer::playMovieMusic(UI::MvePlayer* mve)
         {
-            musicCallback = std::bind(&Mixer::_movieCallback,this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+            musicCallback = std::bind(&Sdl2Mixer::_movieCallback,this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
             Mix_HookMusic(myMusicPlayer, reinterpret_cast<void *>(mve));
         }
 
-        void Mixer::playACMSound(const std::string& filename)
+        void Sdl2Mixer::playACMSound(const std::string& filename)
         {
             auto acm = ResourceManager::getInstance()->acmFileType(filename);
             if (!acm) return;
-            Logger::debug("Mixer") << "playing: " << acm->filename() << std::endl;
+            Logger::debug("Sdl2Mixer") << "playing: " << acm->filename() << std::endl;
             Mix_Chunk *chunk = NULL;
 
             auto it = _sfx.find(acm->filename());
@@ -214,51 +216,52 @@ namespace Falltergeist
             Mix_PlayChannel(-1, chunk, 0);
         }
 
-        void Mixer::setVolume(IMixer::Category category, double volume) {
-            // TODO implement volume levels for all categories
+        void Sdl2Mixer::setVolume(IMixer::Category category, double volume) {
             if (volume < 0.0) {
                 volume = 0.0;
-            } else if (volume > 1.0) {
+            }
+            if (volume > 1.0) {
                 volume = 1.0;
             }
 
-            if (category == Category::MUSIC) {
-                _musicVolume = volume;
-            }
+            _volumes.at(category) = volume;
+            Mix_Volume(channelNumber(category), (int) (MIX_MAX_VOLUME * volume));
         }
 
-        double Mixer::volume(IMixer::Category category) {
-            // TODO implement volume levels for all categories
-            if (category == Category::MUSIC) {
-                return _musicVolume;
-            }
-            return 0;
+        double Sdl2Mixer::volume(IMixer::Category category) {
+            return _volumes.at(category);
         }
 
-        void Mixer::lowerHalfVolume(IMixer::Category category) {
+        void Sdl2Mixer::lowerHalfVolume(IMixer::Category category) {
             return setVolume(category, volume(category) / 2.0);
         }
 
-        void Mixer::increaseHalfVolume(IMixer::Category category) {
+        void Sdl2Mixer::increaseHalfVolume(IMixer::Category category) {
             return setVolume(category, volume(category) * 2.0);
         }
 
-        void Mixer::pause(IMixer::Category category) {
-            // TODO implement for all categories
-            if (category == Category::MUSIC) {
-                _paused = true;
-            }
+        void Sdl2Mixer::pause(IMixer::Category category) {
+            Mix_Pause(channelNumber(category));
         }
 
-        void Mixer::resume(IMixer::Category category) {
-            // TODO implement for all categories
-            if (category == Category::MUSIC) {
-                _paused = false;
-            }
+        void Sdl2Mixer::resume(IMixer::Category category) {
+            Mix_Resume(channelNumber(category));
         }
 
-        void Mixer::stop() {
-            Mix_HookMusic(NULL, NULL);
+        void Sdl2Mixer::stop() {
+            Mix_HaltChannel(-1); // -1 means ALL channels
+        }
+
+        int Sdl2Mixer::channelNumber(IMixer::Category category) {
+            if (category == Category::SFX) {
+                return 1;
+            }
+            if (category == Category::MUSIC) {
+                return 2;
+            }
+            if (category == Category::SPEECH) {
+                return 3;
+            }
         }
     }
 }
