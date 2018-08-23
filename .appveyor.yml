@@ -11,6 +11,9 @@ configuration:
 on_finish: #password is specified in appveyor project settings
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
+environment:
+  SDLDIR: ext\SDL
+
 install:
   - cmd: echo "Downloading conan..."
   - cmd: cd %APPVEYOR_BUILD_FOLDER%
@@ -49,7 +52,6 @@ build_script:
   - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
   - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll out\
 
-  - cmd: set SDL_DIR="ext\SDL2"
   - cmd: cmake . -G "Visual Studio 15 2017"
   - cmd: cmake --build . --config %CONFIGURATION%
 
