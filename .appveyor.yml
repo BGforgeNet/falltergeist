@@ -1,0 +1,68 @@
+shallow_clone: true
+
+image: Visual Studio 2017
+
+build:
+  verbosity: detailed
+
+configuration:
+  - Release
+
+install:
+  - cmd: echo "Downloading conan..."
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%
+  - cmd: if not exist virtualenv mkdir virtualenv
+  - cmd: cd virtualenv
+  - cmd: python -m virtualenv conan
+  - cmd: conan/Scripts/activate
+  - cmd: python -m pip install conan
+  - cmd: cd ..
+  - cmd: conan --version
+  - cmd: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+  - cmd: conan remote list
+  - cmd: conan config set storage.path=c:\Users\appveyor\conan_cache
+  - cmd: cat c:\Users\appveyor\.conan\conan.conf
+  - cmd: mkdir c:\Users\appveyor\.conan\profiles
+  - cmd: ECHO %PROCESSOR_ARCHITECTURE%
+  - cmd: reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" /v PROCESSOR_ARCHITECTURE
+  - cmd: echo %CONFIGURATION%
+
+cache:
+  - virtualenv -> .appveyor.yml                     # Conan
+  - c:\Users\appveyor\conan_cache -> conanfile.txt  # Conan cache
+  - ext -> .appveyor.yml                            # SDL2_mixer
+
+build_script:
+  - cmd: conan install . -s arch=x86 -s build_type=Release --build=missing
+
+  # download SDL2_mixer manually until it's packaged in conan
+  - cmd: mkdir out
+  - cmd: mkdir "ext\SDL2\lib"
+  - ps:  wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
+  - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
+  - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
+  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
+  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll out\
+
+  - cmd: cmake . -G "Visual Studio 15 2017"
+  - cmd: cmake --build . --config %CONFIGURATION%
+
+test_script:
+  - cmd: dir out
+
+after_build:
+  - cmd: cd out
+  - cmd: 7z a falltergeist.zip *
+  - cmd: cd ..
+
+artifacts:
+  - path: out/falltergeist.zip
+
+deploy:
+  - provider: GitHub
+    artifact: out/falltergeist.zip
+    draft: false
+    prerelease: false
+    on:
+      branch: master
+      appveyor_repo_tag: true
