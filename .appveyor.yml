@@ -42,7 +42,7 @@ build_script:
   - cmd: mkdir out
   - cmd: mkdir "ext\SDL2\lib"
   - cmd: cd
-  - ps:  wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
+  - ps:  wget -O SDL2_mixer-devel-2.0.2-VC.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: dir
   - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
