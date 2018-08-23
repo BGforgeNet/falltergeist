@@ -38,8 +38,10 @@ build_script:
   # download SDL2_mixer manually until it's packaged in conan
   - cmd: mkdir out
   - cmd: mkdir "ext\SDL2\lib"
-  - ps:  wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
-  - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
+  - cmd: cd
+  - cmd: wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
+  - cmd: dir
+  - cmd: 7z x SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
   - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
   - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll out\
