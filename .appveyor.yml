@@ -7,6 +7,7 @@ build:
 
 configuration:
   - Debug
+  - Release
 
 on_finish: #password is specified in appveyor project settings
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -42,7 +43,7 @@ build_script:
   - cmd: conan install . -s arch=x86 -s build_type=Release --build=missing
 
   # download SDL2_mixer manually until it's packaged in conan
-  - cmd: mkdir out
+  - cmd: if not exist bin mkdir bin
   - cmd: mkdir "ext\SDL2\lib"
   - cmd: cd
   - ps:  wget -O SDL2_mixer-devel-2.0.2-VC.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
@@ -50,25 +51,25 @@ build_script:
   - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
   - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
-  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll out\
+  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll bin\
 
   - cmd: cmake . -G "Visual Studio 15 2017"
   - cmd: cmake --build . --config %CONFIGURATION%
 
 test_script:
-  - cmd: dir out
+  - cmd: dir bin
 
 after_build:
-  - cmd: cd out
+  - cmd: cd bin
   - cmd: 7z a falltergeist.zip *
   - cmd: cd ..
 
 artifacts:
-  - path: out/falltergeist.zip
+  - path: bin/falltergeist.zip
 
 deploy:
   - provider: GitHub
-    artifact: out/falltergeist.zip
+    artifact: bin/falltergeist.zip
     draft: false
     prerelease: false
     on:
