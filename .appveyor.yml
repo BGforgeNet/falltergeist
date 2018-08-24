@@ -36,7 +36,7 @@ install:
 
 cache:
   - virtualenv -> .appveyor.yml                     # Conan
-  - c:\Users\appveyor\conan_cache -> conanfile.txt  # Conan cache
+  - c:\Users\appveyor\conan_cache -> .appveyor.yml  # Conan cache
   - ext -> .appveyor.yml                            # SDL2_mixer
 
 build_script:
