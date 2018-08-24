@@ -6,7 +6,7 @@ build:
   verbosity: detailed
 
 configuration:
-  - Release
+  - Debug
 
 on_finish: #password is specified in appveyor project settings
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
