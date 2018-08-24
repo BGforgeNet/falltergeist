@@ -40,7 +40,7 @@ cache:
   - ext -> .appveyor.yml                            # SDL2_mixer
 
 build_script:
-  - cmd: conan install . --build=missing --config Release
+  - cmd: conan install . -s build_type=Release --build=missing
 
   # download SDL2_mixer manually until it's packaged in conan
   - cmd: if not exist bin mkdir bin
