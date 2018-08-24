@@ -40,7 +40,7 @@ cache:
   - ext -> .appveyor.yml                            # SDL2_mixer
 
 build_script:
-  - cmd: conan install . -s build_type=Release --build=missing
+  - cmd: conan install . -s arch=x86 -s build_type=Release --build=missing
 
   # download SDL2_mixer manually until it's packaged in conan
   - cmd: if not exist bin mkdir bin
@@ -50,8 +50,8 @@ build_script:
   - cmd: dir
   - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
-  - cmd: move SDL2_mixer-2.0.2\lib\x64\*.lib ext\SDL2\lib\
-  - cmd: move SDL2_mixer-2.0.2\lib\x64\*.dll bin\
+  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
+  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll bin\
 
   - cmd: cmake . -G "Visual Studio 15 2017"
   - cmd: cmake --build . --config %CONFIGURATION%
