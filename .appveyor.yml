@@ -50,7 +50,7 @@ build_script:
   - cmd: dir
   - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
   - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
-  - cmd: move SDL2_mixer-2.0.2\lib\x64\*.lib ext\SDL2\lib\
+  - cmd: move SDL2_mixer-2.0.2\lib\x64\*.lib bin\
   - cmd: move SDL2_mixer-2.0.2\lib\x64\*.dll bin\
 
   - cmd: cmake . -G "Visual Studio 15 2017"
