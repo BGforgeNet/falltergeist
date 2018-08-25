@@ -9,8 +9,8 @@ configuration:
   - Debug
   - Release
 
-on_finish: #password is specified in appveyor project settings
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish: #password is specified in appveyor project settings
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 environment:
   SDLDIR: ext\SDL2
