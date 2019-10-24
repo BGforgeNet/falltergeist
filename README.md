@@ -1,12 +1,8 @@
-Falltergeist [![Build Status](https://travis-ci.org/falltergeist/falltergeist.svg?branch=develop)](https://travis-ci.org/falltergeist/falltergeist) ![Version](https://img.shields.io/github/release/falltergeist/falltergeist.svg)
+Falltergeist [![Build Status](https://travis-ci.org/falltergeist/falltergeist.svg?branch=develop)](https://travis-ci.org/falltergeist/falltergeist) [![Version](https://img.shields.io/github/release/falltergeist/falltergeist.svg)](https://github.com/falltergeist/falltergeist/releases/latest) [![Discord](https://img.shields.io/discord/401990446747877376.svg)](https://discord.gg/jxs6WRq)
 ============
 
 Opensource crossplatform Fallout 2™ engine writen in C++ and SDL.
 https://falltergeist.org/
-
-IRC channel: #falltergeist on [freenode.net](http://webchat.freenode.net/?channels=falltergeist)
-
-Jabber chanel: falltergeist on conference.jabber.ru
 
 ## Dependencies
 
@@ -36,3 +32,14 @@ or mount CD-ROM with original game, then run
 ```
 ./falltergeist
 ```
+
+## Development roadmap
+
+This is a pretty highlevel roadmap to get to a playable game. The idea behind it is to step by step get closer to the full game.
+
+- Worldmap support
+- Elevators
+- NPCs
+- Combat AI
+- Full scripting support
+- Skills

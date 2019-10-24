@@ -17,8 +17,8 @@
  * along with Falltergeist.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FALLTERGEIST_VM_HANDLER_OPCODE8113_H
-#define FALLTERGEIST_VM_HANDLER_OPCODE8113_H
+#ifndef FALLTERGEIST_VM_HANDLER_OPCODE8125_H
+#define FALLTERGEIST_VM_HANDLER_OPCODE8125_H
 
 // C++ standard includes
 
@@ -27,21 +27,17 @@
 
 // Third party includes
 
-namespace Falltergeist
-{
-    namespace VM
-    {
-        namespace Handler
-        {
-            class Opcode8125 : public OpcodeHandler
-            {
-                public:
-                    Opcode8125(VM::Script* script);
+namespace Falltergeist {
+    namespace VM {
+        namespace Handler {
+            class Opcode8125 : public OpcodeHandler {
+            public:
+                Opcode8125(VM::Script *script);
 
-                private:
-                    void _run() override;
+            private:
+                void _run() override;
             };
         }
     }
 }
-#endif // FALLTERGEIST_VM_HANDLER_OPCODE8113_H
+#endif // FALLTERGEIST_VM_HANDLER_OPCODE8125_H
