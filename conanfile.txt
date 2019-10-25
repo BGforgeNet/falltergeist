@@ -2,7 +2,7 @@
 zlib/1.2.11@conan/stable
 sdl2/2.0.10@bincrafters/stable
 sdl2_image/2.0.5@bincrafters/stable
-sdl2_mixer/2.0.4@bincrafters/stable
+# sdl2_mixer/2.0.4@bincrafters/stable # libiconv/1.15: checking host system type... Invalid configuration `i686-windows-msvc': system `msvc' not recognized
 glew/2.1.0@bincrafters/stable
 glm/0.9.9.5@g-truc/stable
 
