@@ -46,12 +46,12 @@ build_script:
   - cmd: if not exist bin mkdir bin
   - cmd: mkdir "ext\SDL2\lib"
   - cmd: cd
-  - ps:  wget -O SDL2_mixer-devel-2.0.2-VC.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip
+  - ps:  wget -O SDL2_mixer-devel-2.0.4-VC.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip
   - cmd: dir
-  - ps:  7z x SDL2_mixer-devel-2.0.2-VC.zip
-  - cmd: move SDL2_mixer-2.0.2\include ext\SDL2\
-  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.lib ext\SDL2\lib\
-  - cmd: move SDL2_mixer-2.0.2\lib\x86\*.dll bin\
+  - ps:  7z x SDL2_mixer-devel-2.0.4-VC.zip
+  - cmd: move SDL2_mixer-2.0.4\include ext\SDL2\
+  - cmd: move SDL2_mixer-2.0.4\lib\x86\*.lib ext\SDL2\lib\
+  - cmd: move SDL2_mixer-2.0.4\lib\x86\*.dll bin\
 
   - cmd: cmake . -G "Visual Studio 15 2017"
   - cmd: cmake --build . --config %CONFIGURATION%
