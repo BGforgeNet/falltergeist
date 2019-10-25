@@ -42,16 +42,20 @@ install:
 build_script:
   - cmd: conan install . -s arch=x86 -s build_type=Release --build=missing
 
-  # download SDL2_mixer manually until it's packaged in conan
+  # SDL2_mixer
   - cmd: if not exist bin mkdir bin
   - cmd: mkdir "ext\SDL2\lib"
   - cmd: cd
   - ps:  wget -O SDL2_mixer-devel-2.0.4-VC.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip
-  - cmd: dir
   - ps:  7z x SDL2_mixer-devel-2.0.4-VC.zip
   - cmd: move SDL2_mixer-2.0.4\include ext\SDL2\
   - cmd: move SDL2_mixer-2.0.4\lib\x86\*.lib ext\SDL2\lib\
   - cmd: move SDL2_mixer-2.0.4\lib\x86\*.dll bin\
+
+  # SDL2
+  - ps:  wget -O SDL2.zip https://www.libsdl.org/release/SDL2-2.0.10-win32-x86.zip
+  - ps:  7z x SDL2.zip SDL2.dll
+  - cmd: move SDL2.dll bin\
 
   - cmd: cmake . -G "Visual Studio 15 2017"
   - cmd: cmake --build . --config %CONFIGURATION%
